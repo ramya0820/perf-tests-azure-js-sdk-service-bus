@@ -1,0 +1,44 @@
+{
+  "name": "t0",
+  "version": "1.0.0",
+  "description": "App implementing T0 performance tests scenario.",
+  "main": "index.js",
+  "scripts": {
+    "tslint": "tslint -p . -c tslint.json",
+    "tsc": "tsc",
+    "build": "npm run tslint && tsc -p .",
+    "test": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramya0820/t0.git"
+  },
+  "keywords": [
+    "app",
+    "stress",
+    "performance",
+    "node",
+    "sdk",
+    "servicebus",
+    "service",
+    "bus",
+    "azure",
+    "client"
+  ],
+  "author": "Ramya Raja",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ramya0820/t0/issues"
+  },
+  "homepage": "https://github.com/ramya0820/t0#readme",
+  "dependencies": {
+    "@azure/service-bus": "^1.0.0-preview.1",
+    "@types/async-lock": "^1.1.1",
+    "@types/long": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^11.11.3",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
+  }
+}
