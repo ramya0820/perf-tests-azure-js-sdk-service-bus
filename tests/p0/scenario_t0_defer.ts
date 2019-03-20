@@ -1,7 +1,3 @@
-/*
-  T0 Scenario - Send and receive messages within single process.
-*/
-
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
 
 const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
