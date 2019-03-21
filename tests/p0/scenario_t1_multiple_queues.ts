@@ -1,7 +1,6 @@
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay, QueueClient } from "@azure/service-bus";
 
 const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t1-queue-keep-open";
 
 const numberOfClients = 5000;
 
@@ -21,7 +20,7 @@ async function createClients() {
 
     var num = 1;
     while (num < numberOfClients) {
-        const client = ns.createQueueClient(queueName);
+        const client = ns.createQueueClient(`t1-queue-new-${num}`);
         clients.push(client);
         const sender = client.getSender();
         
@@ -41,7 +40,7 @@ async function createClients() {
           };
         receiver.receive(onMessageHandler, onErrorHandler, { autoComplete: false });
         await delay(2000);
-        // await receiver.close();
+        await receiver.close();
         num++;
     }
   } finally {

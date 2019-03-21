@@ -34,7 +34,11 @@
   "dependencies": {
     "@azure/service-bus": "^1.0.0-preview.1",
     "@types/async-lock": "^1.1.1",
-    "@types/long": "^4.0.0"
+    "@types/azure-sb": "0.0.35",
+    "@types/long": "^4.0.0",
+    "@types/request": "^2.48.1",
+    "azure-sb": "^0.10.6",
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "@types/node": "^11.11.3",
