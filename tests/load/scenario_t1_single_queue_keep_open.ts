@@ -1,9 +1,10 @@
-import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
+import { Namespace, SendableMessageInfo, OnMessage, OnError, delay, QueueClient } from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t0-queue";
+const connectionString = "";
+const queueName = "";
 
-const testDurationInMilliseconds = 60000 * 5 * 12 * 48; // 48 hours
+
+const testDurationInMilliseconds = 60000 * 5 * 12 * 24 * 7; // 1 week
 
 var messageMap: Set<number> = new Set<number>();
 var msgId = 1;
@@ -34,7 +35,7 @@ async function sendMessages() {
       messageMap.add(msgId);
       msgId++;
       await sender.send(message);
-      await delay(2000); // Throttling send to not increase queue size
+      await delay(500);
     }
   } finally {
     client.close();

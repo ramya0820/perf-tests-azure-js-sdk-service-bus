@@ -1,9 +1,9 @@
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t0-queue-random";
+const connectionString = "";
+const queueName = "";
 
-const testDurationInMilliseconds = 60000 * 5 * 12 * 48; // 48 hours
+const testDurationInMilliseconds = 60000 * 5 * 12 * 24 * 7; // 1 week
 
 var messagesToProcess : Set<number> = new Set<number>();
 var messageAbandonedMap : { [key:number]:number; } = {};
@@ -33,7 +33,8 @@ async function sendMessages() {
       const message: SendableMessageInfo = {
         messageId: msgId,
         body: "test",
-        label: `${msgId}`
+        label: `${msgId}`,
+        sessionId: "session-1"
       };
       messageAbandonedMap[msgId] = 0;
       messagesToProcess.add(msgId);
@@ -52,7 +53,7 @@ async function receiveMessages(): Promise<void> {
   const client = ns.createQueueClient(queueName);
   
   try {
-    const receiver = client.getReceiver();
+    const receiver = await client.getSessionReceiver({sessionId: "session-1"});
     const onMessageHandler: OnMessage = async (brokeredMessage) => {
       var receivedMsgId = brokeredMessage.messageId;
       

@@ -1,28 +1,33 @@
-import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
+import {
+  Namespace,
+  SendableMessageInfo,
+  OnMessage,
+  OnError,
+  delay
+} from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t0-queue-deadletter";
+const connectionString = "";
+const queueName = "";
 
-const testDurationInMilliseconds = 60000 * 5 * 12 * 3; // 3 hours
+const testDurationInMilliseconds = 60000 * 5 * 12 * 24 * 7; // 1 week
 
-var messageMap: Set<number> = new Set<number>();
-var msgId = 1;
+let messageMap: Set<number> = new Set<number>();
+let msgId = 1;
 
-var snapshotIntervalID: any;
+let snapshotIntervalID: any;
 
-var isJobDone = false;
+let isJobDone = false;
 
 async function main(): Promise<void> {
-    snapshotIntervalID = setInterval(snapshot, 5000); // Every 5 seconds
-    sendMessages();
-    receiveMessages();
+  snapshotIntervalID = setInterval(snapshot, 5000); // Every 5 seconds
+  sendMessages();
+  receiveMessages();
 }
 
 async function sendMessages() {
   const ns = Namespace.createFromConnectionString(connectionString);
   const client = ns.createQueueClient(queueName);
   try {
-
     const sender = client.getSender();
 
     while (!isJobDone) {
@@ -45,36 +50,37 @@ async function sendMessages() {
 async function receiveMessages(): Promise<void> {
   const ns = Namespace.createFromConnectionString(connectionString);
   const client = ns.createQueueClient(queueName);
-  
+
   try {
     const receiver = client.getReceiver();
-    const onMessageHandler: OnMessage = async (brokeredMessage) => {
+    const onMessageHandler: OnMessage = async brokeredMessage => {
       var receivedMsgId = brokeredMessage.messageId;
-      
-      if(typeof(receivedMsgId) !== "number") {
-        throw new Error("MessageId is corrupt or is of unexpected type")
+
+      if (typeof receivedMsgId !== "number") {
+        throw new Error("MessageId is corrupt or is of unexpected type");
       }
-  
-      if(!messageMap.has(receivedMsgId)) {
-        throw new Error("Received message that is not recorded in internal map.")
+
+      if (!messageMap.has(receivedMsgId)) {
+        throw new Error(
+          "Received message that is not recorded in internal map."
+        );
       }
-  
+
       messageMap.delete(receivedMsgId);
-  
-      await brokeredMessage.deadLetter();
+
+      await brokeredMessage.complete();
     };
-    const onErrorHandler: OnError = (err) => {
+    const onErrorHandler: OnError = err => {
       throw err;
     };
-  
+
     receiver.receive(onMessageHandler, onErrorHandler, { autoComplete: false });
     await delay(testDurationInMilliseconds);
-  
+
     isJobDone = true;
-    
+
     await receiver.close();
     clearInterval(snapshotIntervalID);
-
   } finally {
     client.close();
     ns.close();
@@ -84,10 +90,13 @@ async function receiveMessages(): Promise<void> {
 function snapshot() {
   console.log("Time : ", new Date());
   console.log("Map Size : ", messageMap.size);
-  console.log("Number of messages sent and deadlettered so far : ", msgId);
+  console.log(
+    "Number of messages sent and received successfully so far : ",
+    msgId
+  );
   console.log("\n");
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.log("Error occurred: ", err);
 });

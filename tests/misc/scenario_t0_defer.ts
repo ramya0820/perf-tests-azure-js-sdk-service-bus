@@ -1,7 +1,7 @@
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t0-queue-defer";
+const connectionString = "";
+const queueName = "";
 
 const testDurationInMilliseconds = 60000 * 5 * 12 * 3; // 3 hours
 

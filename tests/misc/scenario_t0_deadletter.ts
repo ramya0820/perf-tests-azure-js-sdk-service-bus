@@ -1,11 +1,11 @@
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay } from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
-const queueName = "t0-queue-abandon";
+const connectionString = "";
+const queueName = "";
 
 const testDurationInMilliseconds = 60000 * 5 * 12 * 3; // 3 hours
 
-var messageReceiveCountMap : { [key:string]:number; } = {};
+var messageMap: Set<number> = new Set<number>();
 var msgId = 1;
 
 var snapshotIntervalID: any;
@@ -31,7 +31,7 @@ async function sendMessages() {
         body: "test",
         label: `${msgId}`
       };
-      messageReceiveCountMap[msgId] = 0;
+      messageMap.add(msgId);
       msgId++;
       await sender.send(message);
       await delay(2000); // Throttling send to not increase queue size
@@ -55,14 +55,13 @@ async function receiveMessages(): Promise<void> {
         throw new Error("MessageId is corrupt or is of unexpected type")
       }
   
-      if(!messageReceiveCountMap[receivedMsgId] === undefined) {
+      if(!messageMap.has(receivedMsgId)) {
         throw new Error("Received message that is not recorded in internal map.")
       }
   
-      const currCount = messageReceiveCountMap[receivedMsgId];
-      messageReceiveCountMap[receivedMsgId] = currCount + 1;
+      messageMap.delete(receivedMsgId);
   
-      await brokeredMessage.abandon();
+      await brokeredMessage.deadLetter();
     };
     const onErrorHandler: OnError = (err) => {
       throw err;
@@ -84,14 +83,8 @@ async function receiveMessages(): Promise<void> {
 
 function snapshot() {
   console.log("Time : ", new Date());
-  console.log("Status of last 5 messages : ");
-  if (msgId >= 5) {
-    var i = 0;
-    while(i < 5) {
-      console.log(`MsgId: ${msgId - i} and it's ReceiveCount: ${messageReceiveCountMap[msgId - i]}`);
-      i++;
-    }
-  }
+  console.log("Map Size : ", messageMap.size);
+  console.log("Number of messages sent and deadlettered so far : ", msgId);
   console.log("\n");
 }
 

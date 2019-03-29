@@ -1,6 +1,6 @@
 import { Namespace, SendableMessageInfo, OnMessage, OnError, delay, QueueClient } from "@azure/service-bus";
 
-const connectionString = "Endpoint=sb://perftestbasic.servicebus.windows.net";
+const connectionString = "";
 
 const numberOfClients = 5000;
 
